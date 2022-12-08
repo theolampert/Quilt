@@ -22,6 +22,8 @@ final class QuiltTests: XCTestCase {
 
         let expected = "The quick fox jumped over the dog."
 
+        dump(clientA.operations)
+
         XCTAssertEqual(expected, clientA.text)
         XCTAssertEqual(expected, clientB.text)
 
@@ -40,16 +42,23 @@ final class QuiltTests: XCTestCase {
         var quilt = Quilt(user: userID)
 
         let text = """
-        Nullam vel massa egestas nulla fringilla faucibus in nec orci.
-        Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
-        Vestibulum tellus erat, mollis vitae malesuada ac, euismod tincidunt arcu.
-        Vestibulum ut rhoncus lacus, id vehicula neque. Quisque vel erat dapibus, fringilla magna in, fringilla magna.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Integer sit amet orci id tellus ullamcorper maximus.
+        Integer luctus dui ut ornare laoreet.
+        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+        Quisque sed tempor eros. Fusce at malesuada tortor. Nullam et vestibulum ante.
+        Donec finibus euismod pulvinar.
+        Fusce interdum, sapien a tristique ullamcorper, sem lectus porta dolor, vel mattis libero lectus nec mi.
+        Aenean ac placerat tortor.
+        Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Duis ut lectus sit amet turpis rhoncus consectetur.
+        Mauris semper nec elit eget sagittis.
+        In maximus nisi id massa placerat tempus. Nulla viverra magna nec molestie hendrerit.
         """
 
         startTime = CFAbsoluteTimeGetCurrent()
         quilt.set(newText: text)
         endTime = CFAbsoluteTimeGetCurrent()
-        // Time elapsed: 3.7783960103988647 seconds
+        // Time elapsed: 0.36139798164367676 seconds
         print("Time elapsed: \(endTime! - startTime) seconds")
     }
 }
