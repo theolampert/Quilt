@@ -1,8 +1,14 @@
 import Foundation
 
-public enum Action: Codable {
-    case insert
-    case remove
+public enum MarkType: Codable {
+    case bold
+}
+
+public enum OpType: Codable, Equatable, Hashable {
+    case insert(Character)
+    case remove(OpID)
+    case addMark(MarkType)
+    case removeMark(OpID)
 }
 
 public struct OpID: Comparable, CustomStringConvertible, Hashable, Codable {
@@ -22,35 +28,23 @@ public struct OpID: Comparable, CustomStringConvertible, Hashable, Codable {
     }
 }
 
-public struct Operation: CustomStringConvertible, Identifiable, Codable, Hashable {
+public struct Operation: Identifiable, Codable, Hashable {
     public var id: OpID { opId }
 
     init(
-        action: Action,
         opId: OpID,
-        afterId: OpID? = nil,
-        removeId: OpID? = nil,
-        character: Character? = nil
+        type: OpType,
+        afterId: OpID? = nil
     ) {
-        self.action = action
         self.opId = opId
+        self.type = type
         self.afterId = afterId
-        self.removeId = removeId
-        self.character = character
     }
 
-    let action: Action
     public let opId: OpID
-    let afterId: OpID?
-    let removeId: OpID?
-    let character: Character?
 
-    public var description: String {
-        if let character {
-            return "\(opId) \(character)"
-        }
-        return "\(opId) \(removeId!)"
-    }
+    let type: OpType
+    let afterId: OpID?
 }
 
 public struct Quilt: Codable {
@@ -65,7 +59,7 @@ public struct Quilt: Codable {
         var lastIdx: (OpID, Int)? = nil
 
         for operation in operations {
-            switch operation.action {
+            switch operation.type {
             case .insert:
                 if operation.afterId == nil {
                     ops.insert(operation, at: 0)
@@ -79,13 +73,17 @@ public struct Quilt: Codable {
                     ops.insert(operation, at: newIdx)
                     lastIdx = (operation.opId, newIdx)
                 }
-            case .remove:
-                if let idx = ops.firstIndex(where: { $0.opId == operation.removeId }) {
+            case .remove(let removeID):
+                if let idx = ops.firstIndex(where: { $0.opId == removeID }) {
                     ops.remove(at: idx)
-                    if operation.removeId == lastIdx?.0 {
+                    if removeID == lastIdx?.0 {
                         lastIdx = nil
                     }
                 }
+            case .addMark:
+                print("Foo")
+            case .removeMark:
+                print("Bar")
             }
         }
         return ops
@@ -94,8 +92,8 @@ public struct Quilt: Codable {
     private mutating func createText() {
         appliedOps = applyOperations()
         text = appliedOps.reduce("", { acc, curr in
-            if let char = curr.character {
-                return acc + String(char)
+            if case let .insert(character) = curr.type {
+                return acc + String(character)
             }
             return acc
         })
@@ -109,10 +107,9 @@ public struct Quilt: Codable {
 
     mutating func insert(character: Character, at: Int) {
         let operation = Operation(
-            action: .insert,
             opId: .init(counter: counter, id: user),
-            afterId: appliedOps[safeIndex: at - 1]?.opId,
-            character: character
+            type: .insert(character),
+            afterId: appliedOps[safeIndex: at - 1]?.opId
         )
         operations.append(operation)
         counter += 1
@@ -120,10 +117,20 @@ public struct Quilt: Codable {
     }
 
     mutating func remove(at: Int) {
+        guard let opID = appliedOps[safeIndex: at]?.opId else { return }
         let operation = Operation(
-            action: .remove,
             opId: .init(counter: counter, id: user),
-            removeId: appliedOps[safeIndex: at]?.opId
+            type: .remove(opID)
+        )
+        operations.append(operation)
+        counter += 1
+        createText()
+    }
+
+    mutating func addMark(at: Int, mark: MarkType) {
+        let operation = Operation(
+            opId: .init(counter: counter, id: user),
+            type: .addMark(mark)
         )
         operations.append(operation)
         counter += 1
@@ -137,7 +144,6 @@ public struct Quilt: Codable {
         if let max = self.operations.max(by: {
             $0.opId.counter < $1.opId.counter
         })?.opId.counter {
-            // TODO: Verify
             self.counter = max + 1
         }
         createText()
