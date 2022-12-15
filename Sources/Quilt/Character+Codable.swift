@@ -1,11 +1,9 @@
 //
 //  Character+Codable.swift
-//  
+//
 //
 //  Created by Theodore Lampert on 08.12.22.
 //
-
-import Foundation
 
 extension Character: Codable {
     public init(from decoder: Decoder) throws {
@@ -25,6 +23,7 @@ extension Character: Codable {
         }
         self = string[string.startIndex]
     }
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         try container.encode(String(self))
