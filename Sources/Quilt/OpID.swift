@@ -1,6 +1,6 @@
 //
 //  OpID.swift
-//  
+//
 //
 //  Created by Theodore Lampert on 15.12.22.
 //

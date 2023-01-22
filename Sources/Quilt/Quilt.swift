@@ -6,15 +6,14 @@ public struct Quilt: Codable {
     private let user: UUID
 
     public var operations: [Operation] = []
-    public var text: AttributedString = .init(stringLiteral: "")
 
-    private var appliedOps: [Operation] = []
+    private(set) var appliedOps: [Operation] = []
 
     public init(user: UUID) {
         self.user = user
     }
 
-    private func applyOperations() -> [Operation] {
+    private mutating func applyOperations() {
         var ops: [Operation] = []
         /*
          Optimisation: Assume that text is inserted and removed sequentially
@@ -48,73 +47,7 @@ public struct Quilt: Codable {
                 print("TODO REMOVE MARK \(removeAt)")
             }
         }
-        return ops
-    }
-
-    private func getSpanMarkerIndex(marker: SpanMarker) -> Int {
-        switch marker {
-        case let .before(id):
-            return appliedOps.firstIndex(where: { $0.id == id })!
-        case let .after(id):
-            return appliedOps.firstIndex(where: { $0.id == id })!
-        }
-    }
-
-    private func getAttributedStringRange(
-        string: AttributedString,
-        start: SpanMarker,
-        end: SpanMarker
-    ) -> (AttributedString.Index, AttributedString.Index) {
-        let startIdx = string.characters.index(
-            string.startIndex,
-            offsetBy: getSpanMarkerIndex(marker: start)
-        )
-        let endIdx = string.characters.index(
-            startIdx,
-            offsetBy: getSpanMarkerIndex(marker: end)
-        )
-        return (startIdx, endIdx)
-    }
-
-    private mutating func createText() {
-        appliedOps = applyOperations()
-        text = appliedOps.reduce(AttributedString()) { acc, curr in
-            switch curr.type {
-            case let .insert(character):
-                return acc + AttributedString(stringLiteral: String(character))
-            case let .addMark(type, start, end):
-                switch type {
-                case .bold:
-                    let (startIdx, endIdx) = getAttributedStringRange(
-                        string: acc, start: start, end: end
-                    )
-                    var boldedString: AttributedString = acc
-                    boldedString[startIdx ..< endIdx].font = .system(
-                        size: 16,
-                        weight: .bold
-                    )
-                    return boldedString
-                case .italic:
-                    let (startIdx, endIdx) = getAttributedStringRange(
-                        string: acc, start: start, end: end
-                    )
-                    var boldedString: AttributedString = acc
-                    boldedString[startIdx ..< endIdx].font = .italic(
-                        .system(size: 16, weight: .regular)
-                    )()
-                    return boldedString
-                case .underline:
-                    let (startIdx, endIdx) = getAttributedStringRange(
-                        string: acc, start: start, end: end
-                    )
-                    var underlinedString: AttributedString = acc
-                    underlinedString[startIdx ..< endIdx].underlineStyle = .single
-                    return underlinedString
-                }
-            default:
-                return acc
-            }
-        }
+        appliedOps = ops
     }
 
     public mutating func insert(character: String, atIndex: Int) {
@@ -125,7 +58,7 @@ public struct Quilt: Codable {
         )
         operations.append(operation)
         counter += 1
-        createText()
+        applyOperations()
     }
 
     public mutating func remove(atIndex: Int) {
@@ -137,7 +70,7 @@ public struct Quilt: Codable {
         )
         operations.append(operation)
         counter += 1
-        createText()
+        applyOperations()
     }
 
     mutating func addMark(
@@ -153,7 +86,7 @@ public struct Quilt: Codable {
         )
         operations.append(operation)
         counter += 1
-        createText()
+        applyOperations()
     }
 
     public mutating func merge(_ peritext: Quilt) {
@@ -165,17 +98,6 @@ public struct Quilt: Codable {
         })?.opId.counter {
             counter = max + 1
         }
-        createText()
-    }
-
-    public mutating func set(newText _: String) {
-//        for change in newText.difference(from: text) {
-//            switch change {
-//            case .insert(let offset, let element, _):
-//                insert(character: element, at: offset)
-//            case .remove(let offset, _, _):
-//                remove(at: offset)
-//            }
-//        }
+        applyOperations()
     }
 }
