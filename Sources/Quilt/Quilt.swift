@@ -22,8 +22,7 @@ public struct Quilt: Codable {
         var lastIdx: (OpID, Int)?
 
         for operation in operations {
-            switch operation.type {
-            case .insert, .addMark:
+            if case .insert = operation.type {
                 if operation.afterId == nil {
                     ops.insert(operation, at: 0)
                     lastIdx = (operation.opId, 0)
@@ -36,21 +35,20 @@ public struct Quilt: Codable {
                     ops.insert(operation, at: newIdx)
                     lastIdx = (operation.opId, newIdx)
                 }
-            case let .remove(removeID):
+            } else if case let .remove(removeID) = operation.type {
                 if let idx = ops.firstIndex(where: { $0.opId == removeID }) {
                     ops.remove(at: idx)
                     if removeID == lastIdx?.0 {
                         lastIdx = nil
                     }
                 }
-            case let .removeMark(removeAt):
-                print("TODO REMOVE MARK \(removeAt)")
             }
         }
         appliedOps = ops
     }
 
     public mutating func insert(character: String, atIndex: Int) {
+        // Use appliedOps since we're interested in the index of a character not action
         let operation = Operation(
             opId: .init(counter: counter, id: user),
             type: .insert(character),
@@ -62,6 +60,7 @@ public struct Quilt: Codable {
     }
 
     public mutating func remove(atIndex: Int) {
+        // Use appliedOps since we're interested in the index of a character not action
         guard let opID = appliedOps[safeIndex: atIndex]?.opId
             ?? appliedOps.first?.opId else { return }
         let operation = Operation(
@@ -78,11 +77,32 @@ public struct Quilt: Codable {
         fromIndex: Int,
         toIndex: Int
     ) {
+        // Use appliedOps since we're interested in the index of a character not action
         let start: SpanMarker = .before(appliedOps[fromIndex].opId)
         let end: SpanMarker = .before(appliedOps[toIndex].opId)
         let operation = Operation(
             opId: .init(counter: counter, id: user),
             type: .addMark(type: mark, start: start, end: end)
+        )
+        operations.append(operation)
+        counter += 1
+        applyOperations()
+    }
+
+    mutating func removeMark(
+        mark: MarkType,
+        fromIndex: Int,
+        toIndex: Int
+    ) {
+        let start: SpanMarker = .before(appliedOps[fromIndex].opId)
+        let end: SpanMarker = .before(appliedOps[toIndex].opId)
+        let operation = Operation(
+            opId: .init(counter: counter, id: user),
+            type: .removeMark(
+                type: mark,
+                start: start,
+                end: end
+            )
         )
         operations.append(operation)
         counter += 1

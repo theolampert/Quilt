@@ -7,6 +7,7 @@
 
 import Foundation
 import AppKit
+import SwiftUI
 
 public class QuiltString: ObservableObject {
     public init(
@@ -40,7 +41,7 @@ public class QuiltString: ObservableObject {
     private func getSpanMarkerIndex(marker: SpanMarker) -> Int {
         switch marker {
         case let .before(id):
-            return quilt.appliedOps.firstIndex(where: { $0.id == id })!
+            return quilt.appliedOps.firstIndex(where: { $0.id == id }) ?? 0
         case let .after(id):
             return quilt.appliedOps.firstIndex(where: { $0.id == id })!
         }
@@ -84,25 +85,12 @@ public extension NSAttributedString {
     }
 }
 
-public extension NSAttributedString {
-    func textAttribute<Value>(_ key: Key, at range: NSRange) -> Value? {
-        textAttributes(at: range)[key] as? Value
-    }
-
-    func textAttributes(at range: NSRange) -> [Key: Any] {
-        if length == 0 { return [:] }
-        let range = safeRange(for: range)
-        return attributes(at: range.location, effectiveRange: nil)
-    }
-}
-
 public extension NSMutableAttributedString {
     func setTextAttribute(_ key: Key, to newValue: Any, at range: NSRange) {
         let range = safeRange(for: range)
         guard length > 0, range.location >= 0 else { return }
         beginEditing()
         enumerateAttribute(key, in: range, options: .init()) { value, range, _ in
-            removeAttribute(key, range: range)
             addAttribute(key, value: newValue, range: range)
             fixAttributes(in: range)
         }
@@ -113,31 +101,28 @@ public extension NSMutableAttributedString {
 extension QuiltString {
     public var attString: NSMutableAttributedString {
         let attString = NSMutableAttributedString(string: string)
-        return appleFormatting(string: attString)
+        let fontBase = NSFont.systemFont(ofSize: 16)
+        attString.setTextAttribute(
+            .font, to: fontBase, at: NSRange(location: 0, length: string.count)
+        )
+        return applyFormatting(string: attString)
     }
 
-    private func appleFormatting(string: NSMutableAttributedString) -> NSMutableAttributedString {
-        for operation in quilt.appliedOps {
-            switch operation.type {
-            case let .addMark(type, start, end):
+    private func applyFormatting(string: NSMutableAttributedString) -> NSMutableAttributedString {
+        for operation in quilt.operations {
+            if case .addMark(let type, let start, let end) = operation.type {
                 switch type {
-                case .underline:
+                case .underline, .bold, .italic:
                     string.setTextAttribute(
                         .underlineStyle, to: true, at: NSRange(
-                            location: getSpanMarkerIndex(marker: start) - 1,
-                            length: getSpanMarkerIndex(marker: end)
+                            location: getSpanMarkerIndex(marker: start),
+                            length: getSpanMarkerIndex(marker: end) + 1
                         )
                     )
-
-                case .bold:
-                    return string
-                case .italic:
-                    return string
                 }
-            default:
-                return string
             }
         }
+
         return string
     }
 }

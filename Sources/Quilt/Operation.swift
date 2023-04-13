@@ -5,7 +5,7 @@
 //  Created by Theodore Lampert on 15.12.22.
 //
 
-public struct Operation: Identifiable, Codable {
+public struct Operation: Identifiable, Codable, Equatable {
     public var id: OpID { opId }
 
     init(

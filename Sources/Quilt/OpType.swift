@@ -5,7 +5,7 @@
 //  Created by Theodore Lampert on 15.12.22.
 //
 
-public enum OpType: Codable {
+public enum OpType: Codable, Equatable {
     case insert(String)
     case remove(OpID)
     case addMark(
@@ -13,5 +13,9 @@ public enum OpType: Codable {
         start: SpanMarker,
         end: SpanMarker
     )
-    case removeMark(OpID)
+    case removeMark(
+        type: MarkType,
+        start: SpanMarker,
+        end: SpanMarker
+    )
 }
