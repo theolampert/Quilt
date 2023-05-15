@@ -1,3 +1,3 @@
-# Quilt
+### Quilt
 
-A description of this package.
+An operation based CRDT for text. Heavily inspired by Ink & Switch's Peritext essay.
