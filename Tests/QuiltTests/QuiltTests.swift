@@ -1,6 +1,6 @@
 //
 //  QuiltTests.swift
-//  
+//
 //
 //  Created by Theodore Lampert on 29.01.23.
 //
@@ -31,9 +31,9 @@ final class QuiltTests: XCTestCase {
             quilt.operations[1],
             Operation(
                 opId: OpID(counter: 1, id: user),
-                    type: .insert("H"),
-                    afterId: quilt.operations[0].id
-                )
+                type: .insert("H"),
+                afterId: quilt.operations[0].id
+            )
         )
 
         quilt.remove(atIndex: 1)
