@@ -29,7 +29,7 @@ public class QuiltString: ObservableObject {
         createText()
     }
 
-    internal func getSpanMarkerIndex(marker: SpanMarker) -> Int {
+    func getSpanMarkerIndex(marker: SpanMarker) -> Int {
         switch marker {
         case let .before(id):
             return quilt.appliedOps.firstIndex(where: { $0.id == id }) ?? 0

@@ -90,7 +90,7 @@ final class QuiltStringTests: XCTestCase {
 
         let exptected = NSMutableAttributedString("Hello World")
         exptected.makeBold(range: NSRange(location: 0, length: 11))
-        
+
         XCTAssertTrue(clientA.attString.isEqual(to: exptected))
     }
 

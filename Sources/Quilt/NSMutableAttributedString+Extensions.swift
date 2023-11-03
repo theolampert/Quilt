@@ -10,7 +10,7 @@ public extension NSMutableAttributedString {
         addAttribute(key, value: newValue, range: safeRange)
         endEditing()
     }
-    
+
     func setAttributes(_ attrs: [NSAttributedString.Key: Any], range: NSRange) {
         let safeRange = self.safeRange(for: range)
         guard length > 0, safeRange.location >= 0 else { return }
@@ -21,12 +21,12 @@ public extension NSMutableAttributedString {
         }
         endEditing()
     }
-    
+
     func makeBold(range: NSRange) {
         let boldFont = NSFont.boldSystemFont(ofSize: NSFont.systemFontSize)
         setTextAttribute(.font, to: boldFont, at: range)
     }
-    
+
     func makeItalic(range: NSRange) {
         let italicFont = NSFont.systemFont(ofSize: NSFont.systemFontSize)
         italicFont.fontDescriptor.withSymbolicTraits([.italic])
