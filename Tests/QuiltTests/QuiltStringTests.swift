@@ -58,15 +58,15 @@ final class QuiltStringTests: XCTestCase {
         clientA.set(newText: "Hello World")
         clientA.addMark(mark: .underline, fromIndex: 0, toIndex: 10)
 
-        let exptected = NSMutableAttributedString("Hello World")
-        exptected.setTextAttribute(
+        let expected = NSMutableAttributedString("Hello World")
+        expected.setTextAttribute(
             .underlineStyle, to: true, at: NSRange(location: 0, length: 11)
         )
         let fontBase = NSFont.systemFont(ofSize: 16)
-        exptected.setTextAttribute(
+        expected.setTextAttribute(
             .font, to: fontBase, at: NSRange(location: 0, length: 11)
         )
-        XCTAssertTrue(clientA.attString.isEqual(to: exptected))
+        XCTAssertTrue(clientA.attString.isEqual(to: expected))
     }
 
     func testRemoveUnderlineAttributedString() throws {
@@ -89,11 +89,9 @@ final class QuiltStringTests: XCTestCase {
         clientA.addMark(mark: .bold, fromIndex: 0, toIndex: 10)
 
         let exptected = NSMutableAttributedString("Hello World")
-//        exptected.setTextAttribute(
-//            .underlineStyle, to: true, at: NSRange(location: 0, length: 11)
-//        )
-//        print(clientA.attString)
-//        XCTAssertTrue(clientA.attString.isEqual(to: exptected))
+        exptected.makeBold(range: NSRange(location: 0, length: 11))
+        
+        XCTAssertTrue(clientA.attString.isEqual(to: exptected))
     }
 
     func testItalicAttributedString() throws {
@@ -102,12 +100,10 @@ final class QuiltStringTests: XCTestCase {
         clientA.set(newText: "Hello World")
         clientA.addMark(mark: .italic, fromIndex: 0, toIndex: 10)
 
-        let exptected = NSMutableAttributedString("Hello World")
-//        exptected.setTextAttribute(
-//            .underlineStyle, to: true, at: NSRange(location: 0, length: 11)
-//        )
+        let expected = NSMutableAttributedString("Hello World")
+        expected.makeItalic(range: NSRange(location: 0, length: 11))
 
-//        print(clientA.attString)
-//        XCTAssertTrue(clientA.attString.isEqual(to: exptected))
+        print(clientA.attString)
+        XCTAssertTrue(clientA.attString.isEqual(to: expected))
     }
 }

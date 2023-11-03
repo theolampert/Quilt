@@ -14,18 +14,19 @@ extension QuiltString {
     private func applyFormatting(string: NSMutableAttributedString) -> NSMutableAttributedString {
         for operation in quilt.operations {
             if case let .addMark(type, start, end) = operation.type {
+                let range = NSRange(
+                    location: getSpanMarkerIndex(marker: start),
+                    length: getSpanMarkerIndex(marker: end) + 1
+                )
                 switch type {
                 case .underline:
                     string.setTextAttribute(
-                        .underlineStyle, to: true, at: NSRange(
-                            location: getSpanMarkerIndex(marker: start),
-                            length: getSpanMarkerIndex(marker: end) + 1
-                        )
+                        .underlineStyle, to: true, at: range
                     )
                 case .bold:
-                    print("TODO bold")
+                    string.makeBold(range: range)
                 case .italic:
-                    print("TODO italic")
+                    string.makeItalic(range: range)
                 }
             }
         }
