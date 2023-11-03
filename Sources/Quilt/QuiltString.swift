@@ -1,13 +1,4 @@
-//
-//  File.swift
-//
-//
-//  Created by Theodore Lampert on 15.12.22.
-//
-
-import AppKit
 import Foundation
-import SwiftUI
 
 public class QuiltString: ObservableObject {
     public init(

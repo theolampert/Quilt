@@ -1,10 +1,3 @@
-//
-//  QuiltString.swift
-//
-//
-//  Created by Theodore Lampert on 15.05.23.
-//
-
 import AppKit
 import Foundation
 

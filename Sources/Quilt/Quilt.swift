@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 public struct Quilt: Codable {
     private var counter: Int = 0
@@ -18,6 +17,7 @@ public struct Quilt: Codable {
         /*
          Optimisation: Assume that text is inserted and removed sequentially
          and cache the last known index to avoid scanning the whole document.
+         This was cribbed from how Y.js does it.
          */
         var lastIdx: (OpID, Int)?
 
