@@ -170,28 +170,77 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
     var quilt = Quilt(user: user)
 
     let str = """
-    So fare thee well, poor devil of a Sub-Sub, whose commen- 
-    tator I am. Thou belongest to that hopeless, sallow tribe 
-    which no wine of this world will ever warm ; and for whom 
-    even Pale Sherry would be too rosy-strong ; but with whom 
-    one sometimes loves to sit, and feel poor-devilish, too ; and 
-    grow convivial upon tears ; and say to them bluntly with full 
-    eyes and empty glasses, and in not altogether unpleasant 
-    sadness Give it up, Sub-Subs ! For by how much the more 
-    pains ye take to please the world, by so much the more shall 
-    ye forever go thankless ! Would that I could clear out 
-    Hampton Court and the Tuileries for ye ! But gulp down 
-    your tears and hie aloft to the royal-mast with your hearts ; 
-    for your friends who have gone before are clearing out the 
-    seven-storied heavens, and making refugees of long-pampered 
-    Gabriel, Michael, and Raphael, against your coming. Here 
-    ye strike but splintered hearts together there, ye shall 
-    strike unsplinterable glasses! 
+    xiv MOBY-DICK 
+
+    ' He visited this country also with a view of catching horse - 
+    whales, which had bones of very great value for their teeth, 
+    of which he brought some to the king. * * * The best 
+    whales were catched in his own country, of which some were 
+    forty-eight, some fifty yards long. He said that he was one 
+    of six who had killed sixty in two days.' 
+
+    Other or Octher's verbal narrative taken down 
+    from his mouth by King Alfred, A.D. 890. 
+
+    1 And whereas all the other things, whether beast or vessel, 
+    that enter into the dreadful gulf of this monster's (whale's) 
+    mouth, are immediately lost and swallowed up, the sea- 
+    gudgeon retires into it in great security, and there sleeps.' 
+    Montaigne 1 s Apology for Eaimond Sebond. 
+
+    ' Let us fly, let us fly ! Old Nick take me if it is not 
+    Leviathan described by the noble prophet Moses in the life 
+    of patient Job.' Rabelais. 
+
+    ' This whale's liver was two cart-loads.' 
+
+    Stowe's Annals. 
+
+    1 The great Leviathan that maketh the seas to seethe like 
+    boiling pan.' Lord Bacon's Version of the Psalms. 
+
+    ' Touching that monstrous bulk of the whale or ork we 
+    have received nothing certain. They grow exceeding fat, 
+    insomuch that an incredible quantity of oil will be extracted 
+    out of one whale.' Ibid. History of Life and Death. 
+
+    1 The sovereignest thing on earth is parmacetti for an in- 
+    ward bruise.' King Henry. 
+
+    ' Very like a whale.' Hamlet. 
+
+    ' Which to secure, no skill of leach's art 
+    Mote him availle, but to returne againe 
+    To his wound's worker, that with lowly dart, 
+    Dinting his breast, had bred his restless paine, 
+    Like as the wounded whale to shore flies thro' the maine.' 
+
+    The Fairie Queen. 
+
+    ' Immense as whales, the motion of whose vast bodies can 
+    in a peaceful calm trouble the ocean till it boil.' 
+
+    Sir William Davenant's Preface to Gondibert. 
+
+
+
+    EXTRACTS xv 
+
+    ' What spermaceti! is, men might justly doubt, since the 
+    learned Hosmannus in his work of thirty years, saith plainly, 
+    Nescio quid sit.' 
+
+    Sir T. Browne's Of Sperma Ceti and the 
+    Sperma Ceti Whale. Vide his V.E. 
+
+    ' Like Spencer's Talus with his modern flail 
+
+    He threatens ruin with his p
     """
 
     str.enumerated().forEach { (idx, char)in
         quilt.insert(character: char, atIndex: idx)
     }
 
-    #expect(quilt.operationLog.count == 982)
+    #expect(quilt.operationLog.count == 2136)
 }

@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Quilt: Codable, Sendable {
+public struct Quilt: Sendable {
     private var counter: Int = 0
     private let user: UUID
 
@@ -12,16 +12,28 @@ public struct Quilt: Codable, Sendable {
         self.user = user
     }
 
+    private var lastIdx: (OpID, Int)?
+
     private mutating func patch(_ operation: Operation) {
         if case .insert = operation.type {
             if operation.afterId == nil {
                 currentContent.insert(operation, at: 0)
+                lastIdx = (operation.opId, 0)
+            } else if lastIdx?.0 == operation.afterId {
+                let newIdx = lastIdx!.1 + 1
+                currentContent.insert(operation, at: newIdx)
+                lastIdx = (operation.opId, newIdx)
             } else if let idx = currentContent.firstIndex(where: { $0.opId == operation.afterId }) {
-                currentContent.insert(operation, at: idx + 1)
+                let newIdx = idx + 1
+                currentContent.insert(operation, at: newIdx)
+                lastIdx = (operation.opId, newIdx)
             }
         } else if case let .remove(removeID) = operation.type {
             if let idx = currentContent.firstIndex(where: { $0.opId == removeID }) {
                 currentContent.remove(at: idx)
+                if removeID == lastIdx?.0 {
+                    lastIdx = nil
+                }
             }
         }
     }
