@@ -1,6 +1,6 @@
 /// The different types of operations that can be performed on text
 public enum OpType: Codable, Equatable, Sendable {
-    case insert(String)
+    case insert(Character)
     case remove(OpID)
     case addMark(
         type: MarkType,

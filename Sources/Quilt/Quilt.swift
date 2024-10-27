@@ -51,7 +51,7 @@ public struct Quilt: Codable, Sendable {
     /// - Parameters:
     ///   - character: The character to insert
     ///   - atIndex: The position at which to insert the character
-    public mutating func insert(character: String, atIndex: Int) {
+    public mutating func insert(character: Character, atIndex: Int) {
         // Use appliedOps since we're interested in the index of a character not action
         let operation = Operation(
             opId: .init(counter: counter, id: user),
