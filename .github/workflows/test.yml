@@ -10,12 +10,15 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
-    runs-on: macos-latest
-
+  linux_test:
+    name: Test Linux
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Build
-        run: swift build -v
-      - name: Run tests
-        run: swift test -v
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install swiftly
+        run: curl -L https://swiftlang.github.io/swiftly/swiftly-install.sh | bash -s -- -y
+      - name: Install the latest Swift toolchain
+        run: swiftly install latest
+      - name: Test
+        run: swift test --enable-code-coverage
