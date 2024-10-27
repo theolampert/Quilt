@@ -1,3 +1,4 @@
+/// Represents a single operation in the Quilt system
 public struct Operation: Identifiable, Codable, Equatable {
     public var id: OpID { opId }
 

@@ -47,6 +47,10 @@ public struct Quilt: Codable {
         appliedOps = ops
     }
 
+    /// Inserts a character at the specified index in the text
+    /// - Parameters:
+    ///   - character: The character to insert
+    ///   - atIndex: The position at which to insert the character
     public mutating func insert(character: String, atIndex: Int) {
         // Use appliedOps since we're interested in the index of a character not action
         let operation = Operation(
@@ -59,6 +63,8 @@ public struct Quilt: Codable {
         applyOperations()
     }
 
+    /// Removes the character at the specified index
+    /// - Parameter atIndex: The position of the character to remove
     public mutating func remove(atIndex: Int) {
         // Use appliedOps since we're interested in the index of a character not action
         guard let opID = appliedOps[safeIndex: atIndex]?.opId
@@ -72,6 +78,11 @@ public struct Quilt: Codable {
         applyOperations()
     }
 
+    /// Adds a formatting mark to a range of text
+    /// - Parameters:
+    ///   - mark: The type of formatting to apply
+    ///   - fromIndex: The starting index of the range
+    ///   - toIndex: The ending index of the range
     public mutating func addMark(
         mark: MarkType,
         fromIndex: Int,
@@ -89,6 +100,11 @@ public struct Quilt: Codable {
         applyOperations()
     }
 
+    /// Removes a formatting mark from a range of text
+    /// - Parameters:
+    ///   - mark: The type of formatting to remove
+    ///   - fromIndex: The starting index of the range
+    ///   - toIndex: The ending index of the range
     public mutating func removeMark(
         mark: MarkType,
         fromIndex: Int,
@@ -109,6 +125,8 @@ public struct Quilt: Codable {
         applyOperations()
     }
 
+    /// Merges another Quilt document into this one
+    /// - Parameter peritext: The Quilt document to merge
     public mutating func merge(_ peritext: Quilt) {
         operations += peritext.operations.filter { operation in
             !self.operations.contains(where: { operation.opId == $0.opId })
