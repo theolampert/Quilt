@@ -8,20 +8,17 @@
 import Foundation
 import Testing
 @testable import Quilt
-import XCTest
 
 let user = UUID(uuidString: "E2DFDB75-A3D9-4B55-9312-111EF297D566")!
 let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
-
 
 @Test func testAddRemoveOps() throws {
     var quilt = Quilt(user: user)
 
     quilt.insert(character: "T", atIndex: 0)
 
-    XCTAssertEqual(
-        quilt.operationLog[0],
-        Operation(
+    #expect(
+        quilt.operationLog[0] == Operation(
             opId: OpID(counter: 0, id: user),
             type: .insert("T"),
             afterId: nil
@@ -30,9 +27,8 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     quilt.insert(character: "H", atIndex: 1)
 
-    XCTAssertEqual(
-        quilt.operationLog[1],
-        Operation(
+    #expect(
+        quilt.operationLog[1] == Operation(
             opId: OpID(counter: 1, id: user),
             type: .insert("H"),
             afterId: quilt.operationLog[0].id
@@ -41,9 +37,8 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     quilt.remove(atIndex: 1)
 
-    XCTAssertEqual(
-        quilt.operationLog[2],
-        Operation(
+    #expect(
+        quilt.operationLog[2] == Operation(
             opId: OpID(counter: 2, id: user),
             type: .remove(quilt.operationLog[1].id)
         )
@@ -60,7 +55,7 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     quilt.addMark(mark: .bold, fromIndex: 0, toIndex: 4)
 
-    XCTAssertEqual(quilt.operationLog[5], Operation(
+    #expect(quilt.operationLog[5] == Operation(
         opId: OpID(counter: 5, id: user),
         type: .addMark(
             type: .bold,
@@ -75,7 +70,7 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
         toIndex: 4
     )
 
-    XCTAssertEqual(quilt.operationLog[6], Operation(
+    #expect(quilt.operationLog[6] == Operation(
         opId: OpID(counter: 6, id: user),
         type: .removeMark(
             type: .bold,
@@ -88,10 +83,10 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 @Test func testArraySafeIndex() {
     let array = [1, 2, 3]
 
-    XCTAssertEqual(array[safeIndex: 0], 1)
-    XCTAssertEqual(array[safeIndex: 2], 3)
-    XCTAssertNil(array[safeIndex: -1])
-    XCTAssertNil(array[safeIndex: 3])
+    #expect(array[safeIndex: 0] == 1)
+    #expect(array[safeIndex: 2] == 3)
+    #expect(array[safeIndex: -1] == nil)
+    #expect(array[safeIndex: 3] == nil)
 }
 
 // MARK: - OpID Tests
@@ -101,18 +96,18 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
     let id2 = OpID(counter: 2, id: user)
     let id3 = OpID(counter: 2, id: otherUser)
 
-    XCTAssertLessThan(id1, id2)
-    XCTAssertGreaterThan(id2, id1)
+    #expect(id1 < id2)
+    #expect(id2 > id1)
 
     // Test same counter, different UUIDs
-    XCTAssertNotEqual(id2, id3)
+    #expect(id2 != id3)
     // Since user UUID < otherUser UUID
-    XCTAssertLessThan(id2, id3)
+    #expect(id2 < id3)
 }
 
 @Test func testOpIDDescription() {
     let id = OpID(counter: 42, id: user)
-    XCTAssertEqual(id.description, "42@\(user)")
+    #expect(id.description == "42@\(user)")
 }
 
 // MARK: - Quilt Merge Tests
@@ -126,8 +121,8 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     quilt1.merge(quilt2)
 
-    XCTAssertEqual(quilt1.operationLog.count, 2)
-    XCTAssertEqual(quilt1.currentContent.count, 2)
+    #expect(quilt1.operationLog.count == 2)
+    #expect(quilt1.currentContent.count == 2)
 }
 
 @Test func testMergeDuplicateOperations() {
@@ -135,14 +130,13 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
     var quilt2 = Quilt(user: otherUser)  // Changed to different user
 
     quilt1.insert(character: "A", atIndex: 0)
-    quilt2.operationLog = quilt1.operationLog
     quilt2.insert(character: "B", atIndex: 1)
 
     quilt1.merge(quilt2)
 
     // Should add both operationLog since they're from different users
-    XCTAssertEqual(quilt1.operationLog.count, 2)
-    XCTAssertEqual(quilt1.currentContent.count, 2)
+    #expect(quilt1.operationLog.count == 2)
+    #expect(quilt1.currentContent.count == 2)
 }
 
 // MARK: - Edge Cases Tests
@@ -152,7 +146,7 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     // Should not crash
     quilt.remove(atIndex: 0)
-    XCTAssertEqual(quilt.operationLog.count, 0)
+    #expect(quilt.operationLog.count == 0)
 }
 
 @Test func testRemoveFromInvalidIndex() {
@@ -161,7 +155,7 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     // Should not crash and should add the remove operation
     quilt.remove(atIndex: 1)
-    XCTAssertEqual(quilt.operationLog.count, 2)
+    #expect(quilt.operationLog.count == 2)
 }
 
 @Test func testInsertAtInvalidIndex() {
@@ -169,5 +163,35 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     // Should still work by inserting at the end
     quilt.insert(character: "A", atIndex: 999)
-    XCTAssertEqual(quilt.operationLog.count, 1)
+    #expect(quilt.operationLog.count == 1)
+}
+
+@Test func testPerf() {
+    var quilt = Quilt(user: user)
+
+    let str = """
+    So fare thee well, poor devil of a Sub-Sub, whose commen- 
+    tator I am. Thou belongest to that hopeless, sallow tribe 
+    which no wine of this world will ever warm ; and for whom 
+    even Pale Sherry would be too rosy-strong ; but with whom 
+    one sometimes loves to sit, and feel poor-devilish, too ; and 
+    grow convivial upon tears ; and say to them bluntly with full 
+    eyes and empty glasses, and in not altogether unpleasant 
+    sadness Give it up, Sub-Subs ! For by how much the more 
+    pains ye take to please the world, by so much the more shall 
+    ye forever go thankless ! Would that I could clear out 
+    Hampton Court and the Tuileries for ye ! But gulp down 
+    your tears and hie aloft to the royal-mast with your hearts ; 
+    for your friends who have gone before are clearing out the 
+    seven-storied heavens, and making refugees of long-pampered 
+    Gabriel, Michael, and Raphael, against your coming. Here 
+    ye strike but splintered hearts together there, ye shall 
+    strike unsplinterable glasses! 
+    """
+
+    str.enumerated().forEach { (idx, char)in
+        quilt.insert(character: char, atIndex: idx)
+    }
+
+    #expect(quilt.operationLog.count == 982)
 }

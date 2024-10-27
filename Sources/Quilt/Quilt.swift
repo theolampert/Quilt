@@ -4,7 +4,7 @@ public struct Quilt: Codable, Sendable {
     private var counter: Int = 0
     private let user: UUID
 
-    public var operationLog: ContiguousArray<Operation> = []
+    public private(set) var operationLog: ContiguousArray<Operation> = []
 
     public private(set) var currentContent: [Operation] = []
 
@@ -12,39 +12,25 @@ public struct Quilt: Codable, Sendable {
         self.user = user
     }
 
-    private mutating func applyOperations() {
-        var ops: [Operation] = []
-        /*
-         Optimisation: Assume that text is inserted and removed sequentially
-         and cache the last known index to avoid scanning the whole document.
-         This was cribbed from how Y.js does it.
-         */
-        var lastIdx: (OpID, Int)?
-
-        for operation in operationLog {
-            if case .insert = operation.type {
-                if operation.afterId == nil {
-                    ops.insert(operation, at: 0)
-                    lastIdx = (operation.opId, 0)
-                } else if lastIdx?.0 == operation.afterId {
-                    let newIdx = lastIdx!.1 + 1
-                    ops.insert(operation, at: newIdx)
-                    lastIdx = (operation.opId, newIdx)
-                } else if let idx = ops.firstIndex(where: { $0.opId == operation.afterId }) {
-                    let newIdx = idx + 1
-                    ops.insert(operation, at: newIdx)
-                    lastIdx = (operation.opId, newIdx)
-                }
-            } else if case let .remove(removeID) = operation.type {
-                if let idx = ops.firstIndex(where: { $0.opId == removeID }) {
-                    ops.remove(at: idx)
-                    if removeID == lastIdx?.0 {
-                        lastIdx = nil
-                    }
-                }
+    private mutating func patch(_ operation: Operation) {
+        if case .insert = operation.type {
+            if operation.afterId == nil {
+                currentContent.insert(operation, at: 0)
+            } else if let idx = currentContent.firstIndex(where: { $0.opId == operation.afterId }) {
+                currentContent.insert(operation, at: idx + 1)
+            }
+        } else if case let .remove(removeID) = operation.type {
+            if let idx = currentContent.firstIndex(where: { $0.opId == removeID }) {
+                currentContent.remove(at: idx)
             }
         }
-        currentContent = ops
+    }
+
+    public mutating func commit() {
+        currentContent = []
+        for operation in operationLog {
+            patch(operation)
+        }
     }
 
     /// Inserts a character at the specified index in the text
@@ -60,7 +46,7 @@ public struct Quilt: Codable, Sendable {
         )
         operationLog.append(operation)
         counter += 1
-        applyOperations()
+        patch(operation)
     }
 
     /// Removes the character at the specified index
@@ -75,7 +61,7 @@ public struct Quilt: Codable, Sendable {
         )
         operationLog.append(operation)
         counter += 1
-        applyOperations()
+        patch(operation)
     }
 
     /// Adds a formatting mark to a range of text
@@ -97,7 +83,7 @@ public struct Quilt: Codable, Sendable {
         )
         operationLog.append(operation)
         counter += 1
-        applyOperations()
+        commit()
     }
 
     /// Removes a formatting mark from a range of text
@@ -122,7 +108,7 @@ public struct Quilt: Codable, Sendable {
         )
         operationLog.append(operation)
         counter += 1
-        applyOperations()
+        commit()
     }
 
     /// Merges another Quilt document into this one
@@ -136,6 +122,6 @@ public struct Quilt: Codable, Sendable {
         })?.opId.counter {
             counter = max + 1
         }
-        applyOperations()
+        commit()
     }
 }
