@@ -4,7 +4,7 @@ public struct Quilt: Codable, Sendable {
     private var counter: Int = 0
     private let user: UUID
 
-    public var operations: [Operation] = []
+    public var operations: ContiguousArray<Operation> = []
 
     public private(set) var appliedOps: [Operation] = []
 
@@ -126,9 +126,9 @@ public struct Quilt: Codable, Sendable {
     }
 
     /// Merges another Quilt document into this one
-    /// - Parameter peritext: The Quilt document to merge
-    public mutating func merge(_ peritext: Quilt) {
-        operations += peritext.operations.filter { operation in
+    /// - Parameter quilt: The Quilt document to merge
+    public mutating func merge(_ quilt: Quilt) {
+        operations += quilt.operations.filter { operation in
             !self.operations.contains(where: { operation.opId == $0.opId })
         }
         if let max = operations.max(by: {
