@@ -20,7 +20,7 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
     quilt.insert(character: "T", atIndex: 0)
 
     XCTAssertEqual(
-        quilt.operations[0],
+        quilt.operationLog[0],
         Operation(
             opId: OpID(counter: 0, id: user),
             type: .insert("T"),
@@ -31,21 +31,21 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
     quilt.insert(character: "H", atIndex: 1)
 
     XCTAssertEqual(
-        quilt.operations[1],
+        quilt.operationLog[1],
         Operation(
             opId: OpID(counter: 1, id: user),
             type: .insert("H"),
-            afterId: quilt.operations[0].id
+            afterId: quilt.operationLog[0].id
         )
     )
 
     quilt.remove(atIndex: 1)
 
     XCTAssertEqual(
-        quilt.operations[2],
+        quilt.operationLog[2],
         Operation(
             opId: OpID(counter: 2, id: user),
-            type: .remove(quilt.operations[1].id)
+            type: .remove(quilt.operationLog[1].id)
         )
     )
 }
@@ -60,7 +60,7 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     quilt.addMark(mark: .bold, fromIndex: 0, toIndex: 4)
 
-    XCTAssertEqual(quilt.operations[5], Operation(
+    XCTAssertEqual(quilt.operationLog[5], Operation(
         opId: OpID(counter: 5, id: user),
         type: .addMark(
             type: .bold,
@@ -75,7 +75,7 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
         toIndex: 4
     )
 
-    XCTAssertEqual(quilt.operations[6], Operation(
+    XCTAssertEqual(quilt.operationLog[6], Operation(
         opId: OpID(counter: 6, id: user),
         type: .removeMark(
             type: .bold,
@@ -126,8 +126,8 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     quilt1.merge(quilt2)
 
-    XCTAssertEqual(quilt1.operations.count, 2)
-    XCTAssertEqual(quilt1.appliedOps.count, 2)
+    XCTAssertEqual(quilt1.operationLog.count, 2)
+    XCTAssertEqual(quilt1.currentContent.count, 2)
 }
 
 @Test func testMergeDuplicateOperations() {
@@ -135,14 +135,14 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
     var quilt2 = Quilt(user: otherUser)  // Changed to different user
 
     quilt1.insert(character: "A", atIndex: 0)
-    quilt2.operations = quilt1.operations
+    quilt2.operationLog = quilt1.operationLog
     quilt2.insert(character: "B", atIndex: 1)
 
     quilt1.merge(quilt2)
 
-    // Should add both operations since they're from different users
-    XCTAssertEqual(quilt1.operations.count, 2)
-    XCTAssertEqual(quilt1.appliedOps.count, 2)
+    // Should add both operationLog since they're from different users
+    XCTAssertEqual(quilt1.operationLog.count, 2)
+    XCTAssertEqual(quilt1.currentContent.count, 2)
 }
 
 // MARK: - Edge Cases Tests
@@ -152,7 +152,7 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     // Should not crash
     quilt.remove(atIndex: 0)
-    XCTAssertEqual(quilt.operations.count, 0)
+    XCTAssertEqual(quilt.operationLog.count, 0)
 }
 
 @Test func testRemoveFromInvalidIndex() {
@@ -161,7 +161,7 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     // Should not crash and should add the remove operation
     quilt.remove(atIndex: 1)
-    XCTAssertEqual(quilt.operations.count, 2)
+    XCTAssertEqual(quilt.operationLog.count, 2)
 }
 
 @Test func testInsertAtInvalidIndex() {
@@ -169,5 +169,5 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     // Should still work by inserting at the end
     quilt.insert(character: "A", atIndex: 999)
-    XCTAssertEqual(quilt.operations.count, 1)
+    XCTAssertEqual(quilt.operationLog.count, 1)
 }
