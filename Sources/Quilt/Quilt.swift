@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Quilt: Codable {
+public struct Quilt: Codable, Sendable {
     private var counter: Int = 0
     private let user: UUID
 

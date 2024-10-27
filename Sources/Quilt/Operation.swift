@@ -1,5 +1,5 @@
 /// Represents a single operation in the Quilt system
-public struct Operation: Identifiable, Codable, Equatable {
+public struct Operation: Identifiable, Codable, Equatable, Sendable {
     public var id: OpID { opId }
 
     init(
