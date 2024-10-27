@@ -1,6 +1,6 @@
 # Quilt
 
-An (incomplete) Swift implementation of operation-based CRDTs for rich text editing, inspired by Ink & Switch's Peritext essay. Intended to be used by a higher level API (see QuiltString).
+An (incomplete) Swift implementation of operation-based CRDTs for rich text editing, inspired by Ink & Switch's Peritext essay. Intended to be used by a higher level API (see https://github.com/theolampert/QuiltString).
 
 ## Features
 
