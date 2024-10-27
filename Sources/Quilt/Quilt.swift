@@ -6,7 +6,7 @@ public struct Quilt: Codable {
 
     public var operations: [Operation] = []
 
-    private(set) var appliedOps: [Operation] = []
+    public private(set) var appliedOps: [Operation] = []
 
     public init(user: UUID) {
         self.user = user
@@ -72,7 +72,7 @@ public struct Quilt: Codable {
         applyOperations()
     }
 
-    mutating func addMark(
+    public mutating func addMark(
         mark: MarkType,
         fromIndex: Int,
         toIndex: Int
@@ -89,7 +89,7 @@ public struct Quilt: Codable {
         applyOperations()
     }
 
-    mutating func removeMark(
+    public mutating func removeMark(
         mark: MarkType,
         fromIndex: Int,
         toIndex: Int

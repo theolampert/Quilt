@@ -13,6 +13,6 @@ public struct Operation: Identifiable, Codable, Equatable {
 
     public let opId: OpID
 
-    let type: OpType
-    let afterId: OpID?
+    public let type: OpType
+    public let afterId: OpID?
 }
