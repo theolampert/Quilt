@@ -12,6 +12,14 @@ import Testing
 let user = UUID(uuidString: "E2DFDB75-A3D9-4B55-9312-111EF297D566")!
 let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
+func getString(_ doc: Quilt) -> String {
+    doc.currentContent.reduce(into: "") { acc, curr in
+        if case let .insert(character) = curr.type {
+            acc.append(character)
+        }
+    }
+}
+
 @Test func testAddRemoveOps() throws {
     var quilt = Quilt(user: user)
 
@@ -123,6 +131,43 @@ let otherUser = UUID(uuidString: "F3DFDB75-A3D9-4B55-9312-111EF297D567")!
 
     #expect(quilt1.operationLog.count == 2)
     #expect(quilt1.currentContent.count == 2)
+}
+
+@Test func testConcurrentEdits() {
+    var doc1 = Quilt(user: user)
+    var doc2 = Quilt(user: otherUser)
+
+    let str = "The quick brown fox"
+    str.enumerated().forEach { (idx, char) in
+        doc1.insert(character: char, atIndex: idx)
+    }
+
+    doc2.merge(doc1)
+
+    doc2.remove(atIndex: 18)
+    doc2.remove(atIndex: 17)
+    doc2.remove(atIndex: 16)
+
+    doc2.insert(character: "c", atIndex: 16)
+    doc2.insert(character: "a", atIndex: 17)
+    doc2.insert(character: "t", atIndex: 18)
+
+    doc1.remove(atIndex: 18)
+    doc1.remove(atIndex: 17)
+    doc1.remove(atIndex: 16)
+
+    doc1.insert(character: "d", atIndex: 16)
+    doc1.insert(character: "o", atIndex: 17)
+    doc1.insert(character: "g", atIndex: 18)
+
+    #expect(getString(doc1) == "The quick brown dog")
+    #expect(getString(doc2) == "The quick brown cat")
+
+    doc1.merge(doc2)
+    doc2.merge(doc1)
+
+    #expect(getString(doc1) == "The quick brown catdog")
+    #expect(getString(doc2) == "The quick brown catdog")
 }
 
 @Test func testMergeDuplicateOperations() {

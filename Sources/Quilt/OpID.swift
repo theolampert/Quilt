@@ -20,8 +20,8 @@ public struct OpID: Comparable, Hashable, Codable, Equatable, CustomStringConver
         }
     }
 
-    let counter: Int
-    let id: UUID
+    public let counter: Int
+    public let id: UUID
 
     public var description: String {
         "\(counter)@\(id)"
