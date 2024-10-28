@@ -126,14 +126,21 @@ public struct Quilt: Sendable {
     /// Merges another Quilt document into this one
     /// - Parameter quilt: The Quilt document to merge
     public mutating func merge(_ quilt: Quilt) {
+        // Add new operations that we don't already have
         operationLog += quilt.operationLog.filter { operation in
             !self.operationLog.contains(where: { operation.opId == $0.opId })
         }
+        
+        // Sort operations by OpID to ensure consistent ordering
+        operationLog.sort { $0.opId < $1.opId }
+        
+        // Update counter to highest seen
         if let max = operationLog.max(by: {
             $0.opId.counter < $1.opId.counter
         })?.opId.counter {
             counter = max + 1
         }
+        
         commit()
     }
 }
