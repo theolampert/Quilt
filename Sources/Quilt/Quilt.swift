@@ -52,7 +52,7 @@ public struct Quilt: Sendable {
     public mutating func insert(character: Character, atIndex: Int) {
         // Use currentContent since we're interested in the index of a character not action
         let operation = Operation(
-            opId: .init(counter: counter, id: user),
+            opId: .init(counter: counter, userID: user),
             type: .insert(character),
             afterId: currentContent[safeIndex: atIndex - 1]?.opId
         )
@@ -68,7 +68,7 @@ public struct Quilt: Sendable {
         guard let opID = currentContent[safeIndex: atIndex]?.opId
             ?? currentContent.first?.opId else { return }
         let operation = Operation(
-            opId: .init(counter: counter, id: user),
+            opId: .init(counter: counter, userID: user),
             type: .remove(opID)
         )
         operationLog.append(operation)
@@ -90,7 +90,7 @@ public struct Quilt: Sendable {
         let start: SpanMarker = .before(currentContent[fromIndex].opId)
         let end: SpanMarker = .before(currentContent[toIndex].opId)
         let operation = Operation(
-            opId: .init(counter: counter, id: user),
+            opId: .init(counter: counter, userID: user),
             type: .addMark(type: mark, start: start, end: end)
         )
         operationLog.append(operation)
@@ -111,7 +111,7 @@ public struct Quilt: Sendable {
         let start: SpanMarker = .before(currentContent[fromIndex].opId)
         let end: SpanMarker = .before(currentContent[toIndex].opId)
         let operation = Operation(
-            opId: .init(counter: counter, id: user),
+            opId: .init(counter: counter, userID: user),
             type: .removeMark(
                 type: mark,
                 start: start,

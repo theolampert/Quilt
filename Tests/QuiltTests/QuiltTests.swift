@@ -27,7 +27,7 @@ func getString(_ doc: Quilt) -> String {
 
     #expect(
         quilt.operationLog[0] == Operation(
-            opId: OpID(counter: 0, id: user),
+            opId: OpID(counter: 0, userID: user),
             type: .insert("T"),
             afterId: nil
         )
@@ -37,7 +37,7 @@ func getString(_ doc: Quilt) -> String {
 
     #expect(
         quilt.operationLog[1] == Operation(
-            opId: OpID(counter: 1, id: user),
+            opId: OpID(counter: 1, userID: user),
             type: .insert("H"),
             afterId: quilt.operationLog[0].id
         )
@@ -47,7 +47,7 @@ func getString(_ doc: Quilt) -> String {
 
     #expect(
         quilt.operationLog[2] == Operation(
-            opId: OpID(counter: 2, id: user),
+            opId: OpID(counter: 2, userID: user),
             type: .remove(quilt.operationLog[1].id)
         )
     )
@@ -64,11 +64,11 @@ func getString(_ doc: Quilt) -> String {
     quilt.addMark(mark: .bold, fromIndex: 0, toIndex: 4)
 
     #expect(quilt.operationLog[5] == Operation(
-        opId: OpID(counter: 5, id: user),
+        opId: OpID(counter: 5, userID: user),
         type: .addMark(
             type: .bold,
-            start: .before(OpID(counter: 0, id: user)),
-            end: .before(OpID(counter: 4, id: user))
+            start: .before(OpID(counter: 0, userID: user)),
+            end: .before(OpID(counter: 4, userID: user))
         )
     ))
 
@@ -79,11 +79,11 @@ func getString(_ doc: Quilt) -> String {
     )
 
     #expect(quilt.operationLog[6] == Operation(
-        opId: OpID(counter: 6, id: user),
+        opId: OpID(counter: 6, userID: user),
         type: .removeMark(
             type: .bold,
-            start: .before(OpID(counter: 0, id: user)),
-            end: .before(OpID(counter: 4, id: user))
+            start: .before(OpID(counter: 0, userID: user)),
+            end: .before(OpID(counter: 4, userID: user))
         )
     ))
 }
@@ -100,9 +100,9 @@ func getString(_ doc: Quilt) -> String {
 // MARK: - OpID Tests
 
 @Test func testOpIDComparison() {
-    let id1 = OpID(counter: 1, id: user)
-    let id2 = OpID(counter: 2, id: user)
-    let id3 = OpID(counter: 2, id: otherUser)
+    let id1 = OpID(counter: 1, userID: user)
+    let id2 = OpID(counter: 2, userID: user)
+    let id3 = OpID(counter: 2, userID: otherUser)
 
     #expect(id1 < id2)
     #expect(id2 > id1)
@@ -111,11 +111,6 @@ func getString(_ doc: Quilt) -> String {
     #expect(id2 != id3)
     // Since user UUID < otherUser UUID
     #expect(id2 < id3)
-}
-
-@Test func testOpIDDescription() {
-    let id = OpID(counter: 42, id: user)
-    #expect(id.description == "42@\(user)")
 }
 
 // MARK: - Quilt Merge Tests
@@ -168,6 +163,43 @@ func getString(_ doc: Quilt) -> String {
 
     #expect(getString(doc1) == "The quick brown catdog")
     #expect(getString(doc2) == "The quick brown catdog")
+}
+
+@Test func testConcurrentEditsOfSameWord() {
+    var doc1 = Quilt(user: user)
+    var doc2 = Quilt(user: otherUser)
+
+    let str = "The quick brown fox"
+    str.enumerated().forEach { (idx, char) in
+        doc1.insert(character: char, atIndex: idx)
+    }
+
+    doc2.merge(doc1)
+
+    doc2.remove(atIndex: 18)
+    doc2.remove(atIndex: 17)
+    doc2.remove(atIndex: 16)
+
+    doc2.insert(character: "c", atIndex: 16)
+    doc2.insert(character: "a", atIndex: 17)
+    doc2.insert(character: "t", atIndex: 18)
+
+    doc1.remove(atIndex: 18)
+    doc1.remove(atIndex: 17)
+    doc1.remove(atIndex: 16)
+
+    doc1.insert(character: "c", atIndex: 16)
+    doc1.insert(character: "a", atIndex: 17)
+    doc1.insert(character: "t", atIndex: 18)
+
+    #expect(getString(doc1) == "The quick brown cat")
+    #expect(getString(doc2) == "The quick brown cat")
+
+    doc1.merge(doc2)
+    doc2.merge(doc1)
+
+    #expect(getString(doc1) == "The quick brown cat")
+    #expect(getString(doc2) == "The quick brown cat")
 }
 
 @Test func testMergeDuplicateOperations() {

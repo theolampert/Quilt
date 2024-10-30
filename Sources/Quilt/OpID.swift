@@ -7,23 +7,23 @@ public struct OpID: Comparable, Hashable, Codable, Equatable, CustomStringConver
     /// - Parameters:
     ///   - counter: The sequence number of this operation
     ///   - id: The UUID of the user who created this operation
-    public init(counter: Int, id: UUID) {
+    public init(counter: Int, userID: UUID) {
         self.counter = counter
-        self.id = id
+        self.userID = userID
     }
     
     public static func < (lhs: OpID, rhs: OpID) -> Bool {
         if lhs.counter == rhs.counter {
-            return lhs.id.uuidString < rhs.id.uuidString
+            return lhs.userID.uuidString < rhs.userID.uuidString
         } else {
             return lhs.counter < rhs.counter
         }
     }
 
     public let counter: Int
-    public let id: UUID
+    public let userID: UUID
 
     public var description: String {
-        "\(counter)@\(id)"
+        "\(counter)@\(userID)"
     }
 }
