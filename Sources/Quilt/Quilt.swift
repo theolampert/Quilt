@@ -126,19 +126,44 @@ public struct Quilt: Sendable {
     /// Merges another Quilt document into this one
     /// - Parameter quilt: The Quilt document to merge
     public mutating func merge(_ quilt: Quilt) {
-        // Add new operations that we don't already have
-        operationLog += quilt.operationLog.filter { operation in
-            !self.operationLog.contains(where: { operation.opId == $0.opId })
+        let existingIds = Set(operationLog.map { $0.opId })
+        
+        let newOperations = quilt.operationLog.filter { !existingIds.contains($0.opId) }
+        operationLog += newOperations
+        
+        var deduped: ContiguousArray<Operation> = []
+        var processed = Set<OpID>()
+        
+        let sorted = operationLog.sorted { $0.opId < $1.opId }
+        
+        for op in sorted {
+            if case .insert(let char) = op.type {
+                let duplicates = sorted.filter { other in
+                    if case .insert(let otherChar) = other.type,
+                       char == otherChar && op.afterId == other.afterId {
+                        return true
+                    }
+                    return false
+                }
+                
+                if duplicates.count > 1 && !processed.contains(op.opId) {
+                    let winner = duplicates.min { $0.opId < $1.opId }!
+                    deduped.append(winner)
+                    processed.formUnion(duplicates.map { $0.opId })
+                } else if !processed.contains(op.opId) {
+                    deduped.append(op)
+                    processed.insert(op.opId)
+                }
+            } else {
+                deduped.append(op)
+                processed.insert(op.opId)
+            }
         }
         
-        // Sort operations by OpID to ensure consistent ordering
-        operationLog.sort { $0.opId < $1.opId }
+        operationLog = deduped
         
-        // Update counter to highest seen
-        if let max = operationLog.max(by: {
-            $0.opId.counter < $1.opId.counter
-        })?.opId.counter {
-            counter = max + 1
+        if let maxCounter = operationLog.map({ $0.opId.counter }).max() {
+            counter = maxCounter + 1
         }
         
         commit()
